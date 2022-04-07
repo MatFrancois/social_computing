@@ -24,7 +24,7 @@ from unidecode import unidecode
 DATA='leaders_per_com_withwv.json'
 with open('kept_by_com.json', 'r') as f:
     HASHTAG = json.load(f)
-HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
+# HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
 
 
 st.set_page_config(
@@ -64,11 +64,11 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6]#,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] 
 
     my_bar = st.progress(0)
@@ -103,23 +103,23 @@ def light_prepro(mot):
     return unidecode(mot.lower().strip())
 
 # @st.cache(allow_output_mutation=True)
-def get_similar_words(word, model, n):
+def get_similar_words(word, model, n, j):
     print('similarity')
-    return {m: pd.DataFrame(list(map(lambda x: light_prepro(x[0]), Word2Vec.load(v).wv.similar_by_word(word, topn=n))), columns=['Neighbors']) for m, v in model.items() if word in Word2Vec.load(v).wv.key_to_index}
+    m = Word2Vec.load(model.get(j))
+    return  pd.DataFrame(list(map(lambda x: light_prepro(x[0]), m.wv.similar_by_word(word, topn=n))), columns=['Neighbors']) if word in m.wv.key_to_index else None
 
-def get_similar_hashtag(word, model, n, hashtag_dict):
+def get_similar_hashtag(word, model, n, hashtag_dict, j):
     res = {}
-    for k, v in hashtag_dict.items():
-        m = Word2Vec.load(model.get(k))
-        print(word)
-        if word not in m.wv.key_to_index: continue
-        sim = m.wv.distances(word, v)
-        print(sim[:20])
-        df = pd.DataFrame(v, columns=['Neighbors'])
-        df['sim'] = sim
-        res[k] = df.sort_values('sim', ascending=True).iloc[:n,:]
-        print(res.get(k).head())
-    return res
+    # for k, v in hashtag_dict.items():
+    v = hashtag_dict.get(j)
+    m = Word2Vec.load(model.get(j))
+    print(word)
+    if word not in m.wv.key_to_index: return None
+    sim = m.wv.distances(word, v)
+    print(sim[:20])
+    df = pd.DataFrame(v, columns=['Neighbors'])
+    df['sim'] = sim
+    return df.sort_values('sim', ascending=True).iloc[:n,:]
 
 def leaders_to_df(community_details, cluster_id):
     # print(community_details)
@@ -176,7 +176,7 @@ download_models()
 
 # load communities
 community_details = load_data(path=DATA)
-community_details = dict(filter(lambda x: x[0] in ['22','35','6'], community_details.items()))
+# community_details = dict(filter(lambda x: x[0] in ['22','35','6'], community_details.items()))
 # load w2v models
 models = load_models()
 print('model loaded')
@@ -185,7 +185,7 @@ buttons = {}
 if keyword:
 
     print(f'keyword     :       {keyword}')
-    sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
+    # sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
     st.title(keyword)
 
     compteur = 0
@@ -206,7 +206,8 @@ if keyword:
             with co.expander('leaders', expanded=True):
                 st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
             print(f'j: {j}')
-            co.table(sim_dict.get(str(j)))
+            df = get_similar_words(keyword, models, n_voisins, str(j)) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG, str(j))
+            co.table(df)
 
         st.markdown("""---""")
         compteur += 5

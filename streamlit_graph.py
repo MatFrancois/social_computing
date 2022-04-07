@@ -19,6 +19,7 @@ voisin1 | voisin1 | voisin1 |                   | lead2  |
 voisin2 | voisin2 | voisin2 |                   | lead3  |
 voisin3 | voisin3 | voisin3 |                   | lead4  |
 '''
+
 DATA='/data/mfrancois/social_computing/community_details_with_id.json'
 MODELS='/data/mfrancois/social_computing/models'
 TEST='/data/mfrancois/social_computing/toto.json'
@@ -42,13 +43,13 @@ def load_data(path):
 @st.cache(allow_output_mutation=True)
 def get_community(community_details, cluster_id, nb_user=5):
     # filter on id
+    print('start get community')
     filtered_community = dict(filter(lambda x: x[1].get('cluster') == cluster_id and len(x[1].get('text'))>0, community_details.items()))
-
     # sort on leader
     edges  = [v.get('edges') for v in filtered_community.values()]
     edges.sort(reverse=True)
     filtered_community = dict(filter(lambda x: x[1].get('edges') >= edges[4], filtered_community.items()))
-    
+    print(dict(sorted(filtered_community.items(), key=lambda x: x[1].get('edges'))))
     return dict(sorted(filtered_community.items(), key=lambda x: x[1].get('edges')))
 
 @st.cache(allow_output_mutation=True)
@@ -69,8 +70,8 @@ def get_similar_words(word, model, n):
     
 print('starting')
 
-keyword = st.text_input('Choose keyword')
-n_voisins = st.number_input('Choose Number of neighbors', 1, 30)
+keyword = st.text_input(label='Choose keyword',value='climat')
+n_voisins = st.number_input('Choose Number of neighbors', min_value=3, max_value=30, value=10)
 
 print(f'n_voisins   :       {n_voisins}')
 
@@ -99,7 +100,7 @@ if keyword:
         for l, co in enumerate(col):
             j = list(models.keys())[compteur-l-1]
             title = f'community {j}'
-            with co.expander(title):
+            with co.expander(title, expanded=True):
                 if st.button('know more', key=str(j)): st.sidebar.text(get_community(community_details, cluster_id=j, nb_user=5))
                 st.table(sim_dict.get(j))
 

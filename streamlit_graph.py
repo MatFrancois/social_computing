@@ -22,7 +22,6 @@ from unidecode import unidecode
 # 
 
 DATA='leaders_community.json'
-MODELS=''
 
 st.set_page_config(
  page_title="",
@@ -47,28 +46,25 @@ hide_table_row_index = """
 st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
 @st.cache(allow_output_mutation=True)
-def load_models(path):
-    files = os.listdir(path)
+def load_models():
+    files = os.listdir()
     models = {}
     for file in list(filter(re.compile(r'.*(\.model)$').match, files)):
         i = file.replace('word2vec_com', '').replace('.model', '') # get associated community
-        models[i] = Word2Vec.load(f'{path}/{file}')
+        models[i] = Word2Vec.load(file)
     print('trigger load model')
     return models
 
 # download models from git 
-@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        'https://github.com/GreenAI-Uppa/social_computing/releases/download/models/leaders_community.json',
-        "https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com27.model",
-        "https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com27.model.syn1neg.npy",
-        "https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com27.model.wv.vectors.npy"
-    ]
+        'https://github.com/GreenAI-Uppa/social_computing/releases/download/models/leaders_community.json'
+    ] + [f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [1,2,27,3]]
     my_bar = st.progress(0)
     delta = 100/len(url)
     for u, i in zip(url, range(len(url))):
-        my_bar.progress((i+1)*delta)
+        my_bar.progress(int((i+1)*delta))
         filename = u.split('/')[-1]
         urllib.request.urlretrieve(u, filename)
 
@@ -128,7 +124,7 @@ download_models()
 # load communities
 community_details = load_data(path=DATA)
 # load w2v models
-models = load_models(path=MODELS)
+models = load_models()
 print('model loaded')
 print(models.get('27').wv.similar_by_word('climat'))
 buttons = {}

@@ -22,7 +22,9 @@ from unidecode import unidecode
 # 
 
 DATA='leaders_per_com_withwv.json'
-HASHTAG='kept_by_com.json '
+with open('kept_by_com.json', 'r') as f:
+    HASHTAG = json.load(f)
+
 
 st.set_page_config(
  page_title="",
@@ -61,11 +63,11 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6]#,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] 
 
     my_bar = st.progress(0)
@@ -73,6 +75,7 @@ def download_models():
     for u, i in zip(url, range(len(url))):
         my_bar.progress(int((i+1)*delta))
         filename = u.split('/')[-1]
+        if filename in os.listdir(): continue
         try:
             urllib.request.urlretrieve(u, filename)
         except Exception as e:
@@ -105,8 +108,11 @@ def get_similar_words(word, model, n):
 
 def get_similar_hashtag(word, model, n, hashtag_dict):
     res = {}
-    for k, v in hashtag_dict:
+    for k, v in hashtag_dict.items():
+        print(k)
+        print(v)
         sim = Word2Vec.load(model.get(k)).wv.distances(word, v)
+        print(sim)
         df = pd.DataFrame(v, columns=['Neighbors'])
         df['sim'] = sim
         res[k] = df.sort('sim', ascending=False)
@@ -167,7 +173,7 @@ download_models()
 
 # load communities
 community_details = load_data(path=DATA)
-community_details = dict(filter(lambda x: x[0] in [22,35,6], community_details.items()))
+# community_details = dict(filter(lambda x: x[0] in [22,35,6], community_details.items()))
 # load w2v models
 models = load_models()
 print('model loaded')
@@ -177,7 +183,7 @@ if keyword:
 
     print(f'keyword     :       {keyword}')
     sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
-
+    print(sim_dict)
     st.title(keyword)
 
     compteur = 0
@@ -196,6 +202,7 @@ if keyword:
             co.subheader(title)
             with co.expander('leaders', expanded=True):
                 st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
+            print(f'j: {j}')
             co.table(sim_dict.get(str(j)))
 
         st.markdown("""---""")

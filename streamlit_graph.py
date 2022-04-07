@@ -105,7 +105,7 @@ def leaders_to_df(community_details, cluster_id):
     # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
     df['username'] = df.index
-    return df[['username', 'edges']].sort_values(by='edges', ascending=False)
+    return df[['username', 'n_rt']].sort_values(by='n_rt', ascending=False)
  
  
 print('starting')

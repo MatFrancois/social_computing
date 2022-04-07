@@ -21,7 +21,7 @@ from unidecode import unidecode
 # voisin3 | voisin3 | voisin3 | 
 # 
 
-DATA='leaders_per_com.json'
+DATA='leaders_per_com_withwv.json'
 
 st.set_page_config(
  page_title="",
@@ -59,21 +59,25 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] 
-    
+
     my_bar = st.progress(0)
     delta = 100/len(url)
     for u, i in zip(url, range(len(url))):
         my_bar.progress(int((i+1)*delta))
         filename = u.split('/')[-1]
-        urllib.request.urlretrieve(u, filename)
-
-
+        try:
+            urllib.request.urlretrieve(u, filename)
+        except Exception as e:
+            print(filename)
+            print(u)
+            print(e)
+        
 @st.cache(allow_output_mutation=True)
 def load_data(path):
     with open(path, 'r') as f:
@@ -173,7 +177,7 @@ if keyword:
         col = c.columns(n_col)
 
         for co in col:
-            j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
+            j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
             title = f'Community {j}'
 
             # display leaders

@@ -145,7 +145,8 @@ basés à Pau, en France, en face des Pyrénées.
 keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
 # keyword = col.text_input(label='Choose keyword',value='climat')
 
-n_voisins = col.slider('Number of neighbors to display',0, 30, value=10)
+n_voisins = col.slider('Number of neighbors to display',3, 30, value=10)
+n_leaders = col.slider('Number of leaders to display',2, 50, value=5)
 # my_bar = st.progress(0)
 
 print(f'n_voisins   :       {n_voisins}')
@@ -181,7 +182,7 @@ if keyword:
             # display leaders
             co.subheader(title)
             with co.expander('leaders', expanded=True):
-                st.table(leaders_to_df(community_details, str(j)))
+                st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
             print(sim_dict.keys())
             co.table(sim_dict.get(str(j)))
 

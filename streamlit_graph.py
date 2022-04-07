@@ -60,7 +60,14 @@ def load_models():
 def download_models():
     url = [
         'https://github.com/GreenAI-Uppa/social_computing/releases/download/models/leaders_community.json'
-    ] + [f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [1,2,27,3]]
+    ] + [
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [1,2,27,3]
+    ] + [
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [1,2,27,3]
+    ] + [
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [1,2,27,3]
+    ] 
+    
     my_bar = st.progress(0)
     delta = 100/len(url)
     for u, i in zip(url, range(len(url))):

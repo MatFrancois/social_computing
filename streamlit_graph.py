@@ -146,9 +146,9 @@ Note: vous pourrez être surpris par des voisins très différents de votre mot 
 
 
 ## Méthodologie
-### **Les données** : Environ 8 millions de tweets ont été collectés entre octobre 2021 et mars 2022. Ils correspondent à 227256 comptes issus une liste d'une centaine de politiciens et d'écologistes; à ceux-ci s'ajoutent l'extraction automatique de leur followers, les comptes qui les retweetent et mentionnent.
+**Les données** : Environ 8 millions de tweets ont été collectés entre octobre 2021 et mars 2022. Ils correspondent à 227256 comptes issus une liste d'une centaine de politiciens et d'écologistes; à ceux-ci s'ajoutent l'extraction automatique de leur followers, les comptes qui les retweetent et mentionnent.
 
-### **Algorithme** : Une détection automatique des communautés a été effectuée en considérant qu'un retweet établit un lien de proximité entre deux comptes. Chaque communauté est décrit par ses "leaders", c'est à dire ses membres ayant accumulé le plus de retweets. Les distances entre le mot clé et les voisins se basent sur des statistiques de co-occurences entre les mots : deux mots accompagnés souvent des mêmes termes seront considérés voisins.
+**Algorithme** : Une détection automatique des communautés a été effectuée en considérant qu'un retweet établit un lien de proximité entre deux comptes. Chaque communauté est décrit par ses "leaders", c'est à dire ses membres ayant accumulé le plus de retweets. Les distances entre le mot clé et les voisins se basent sur des statistiques de co-occurences entre les mots : deux mots accompagnés souvent des mêmes termes seront considérés voisins.
 
 ## Choisir un mot clé :
     '''

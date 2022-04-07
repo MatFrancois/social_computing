@@ -183,7 +183,6 @@ if keyword:
             co.subheader(title)
             with co.expander('leaders', expanded=True):
                 st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
-            print(sim_dict.keys())
             co.table(sim_dict.get(str(j)))
 
         st.markdown("""---""")

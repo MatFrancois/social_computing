@@ -21,7 +21,7 @@ from unidecode import unidecode
 # voisin3 | voisin3 | voisin3 | 
 # 
 
-DATA='leaders_community.json'
+DATA='leaders_per_com.json'
 
 st.set_page_config(
  page_title="",
@@ -59,13 +59,11 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        'https://github.com/GreenAI-Uppa/social_computing/releases/download/models/leaders_community.json'
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [1,2,27,3]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [1,2,27,3]
-    ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [1,2,27,3]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25]
     ] 
     
     my_bar = st.progress(0)
@@ -74,9 +72,6 @@ def download_models():
         my_bar.progress(int((i+1)*delta))
         filename = u.split('/')[-1]
         urllib.request.urlretrieve(u, filename)
-
-
-
 
 
 @st.cache(allow_output_mutation=True)
@@ -114,7 +109,33 @@ print('starting')
 _, col, _ = st.columns(3)
 col.title("App Title")
 col.markdown(
-    ''' > *Présentation des la méthode de formation de communauté et de l'entrainement de n word2vec pour n communauté*
+    '''
+Dans quelques jours débutera le premier tour de l'élection présidentielle 2022. Parallèlement, la situation environnementale continue 
+de se dégrader et la prise de conscience reste minime. 
+
+## A quoi sert ce site ?
+
+Ce site vous permet d'explorer les différentes communautés politiquement engagées sur twitter et leurs représentants. Vous pourrez alors 
+choisir un mot clé et afficher le N termes les plus proches contextuellement à celui ci par communauté. La liste de termes retournée pour 
+chaque communauté donne un aperçu des termes utilisés dans un même contexte par les membres de celle ci. 
+
+Des termes renvoyés très différents de celui de référence peuvent signifier une absence de celui ci dans le discours global.
+
+## Méthodologie
+
+Nous avons construit nos communautés au regard des liens formés entre les utilisateurs de twitter et des retweets effectués. L'établissement
+des N termes les plus proches contextuellement à un autre a été réalisé grâce à un modèle de langue. Ce modèle se base sur les co-occurences
+des mots et permet d'identifier les termes proches. 
+
+Pour chaque communauté un modèle a été entrainé et a permis de d'établir un dictionnaire de terme sous forme de vecteur de taille 300.
+
+## Qui sommes nous ?
+
+L'équipe GreenAI de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore les algorithmes d'apprentissage 
+automatique de pointe. Soucieux de notre impact sur la planète, nous développons des algorithmes à faible consommation d'énergie et 
+relevons les défis environnementaux. Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, 
+depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires industriels. Nous sommes 
+basés à Pau, en France, en face des Pyrénées.
     '''
 )
 col.image('images/louvain_algo.png')
@@ -151,17 +172,16 @@ if keyword:
 
         col = c.columns(n_col)
 
-        for l, co in enumerate(col):
-            j = list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
+        for co in col:
+            j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,52,23,25] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
             title = f'Community {j}'
-            
+
             # display leaders
             co.subheader(title)
-            with co.expander('leaders'):
+            with co.expander('leaders', expanded=True):
                 st.table(leaders_to_df(community_details, j))
-            # co.markdown("""---""")
             co.table(sim_dict.get(j))
-        
+
         st.markdown("""---""")
         compteur += 5
 

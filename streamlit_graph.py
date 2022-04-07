@@ -182,8 +182,12 @@ if keyword:
             # display leaders
             co.subheader(title)
             with co.expander('leaders', expanded=True):
-                st.table(leaders_to_df(community_details, j))
-            co.table(sim_dict.get(j))
+                try:
+                    st.table(leaders_to_df(community_details, str(j)))
+                except:
+                    print(j)
+                    print(community_details.get(str(j)))
+            co.table(sim_dict.get(str(j)))
 
         st.markdown("""---""")
         compteur += 5

@@ -22,6 +22,7 @@ from unidecode import unidecode
 # 
 
 DATA='leaders_per_com_withwv.json'
+HASHTAG='kept_by_com.json '
 
 st.set_page_config(
  page_title="",
@@ -51,6 +52,7 @@ def load_models():
     models = {}
     for file in list(filter(re.compile(r'.*(\.model)$').match, files)):
         i = file.replace('word2vec_com', '').replace('.model', '') # get associated community
+        print(f'working on {file}')
         models[i] = Word2Vec.load(file)
     print('trigger load model')
     return models
@@ -101,6 +103,15 @@ def get_similar_words(word, model, n):
     print('similarity')
     return {m: pd.DataFrame(list(map(lambda x: light_prepro(x[0]), v.wv.similar_by_word(word, topn=n))), columns=['Neighbors']) for m, v in model.items() if word in v.wv.key_to_index}
 
+def get_similar_hashtag(word, model, n, hashtag_dict):
+    res = {}
+    for k, v in hashtag_dict:
+        sim = model.get(k).wv.distances(word, v)
+        df = pd.DataFrame(v, columns=['Neighbors'])
+        df['sim'] = sim
+        res[k] = df.sort('sim', ascending=False)
+    return res
+
 def leaders_to_df(community_details, cluster_id):
     # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
@@ -147,6 +158,7 @@ keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nu
 
 n_voisins = col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = col.slider('Number of leaders to display',2, 50, value=5)
+only_hashtag = st.checkbox('Compare to most famous hashtag of community')
 # my_bar = st.progress(0)
 
 print(f'n_voisins   :       {n_voisins}')
@@ -163,7 +175,7 @@ buttons = {}
 if keyword:
 
     print(f'keyword     :       {keyword}')
-    sim_dict = get_similar_words(keyword, models, n_voisins)
+    sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
 
     st.title(keyword)
 

@@ -1,0 +1,37 @@
+{
+    "true_cluster_id": {
+        "true_pseudo": {
+            "edges": 20,
+            "n_rt": 10,
+            "n_like": 5
+        },
+        "true_pseudo1": {
+            "edges": 100,
+            "n_rt": 10,
+            "n_like": 5
+        },
+        "true_pseudo2": {
+            "edges": 50,
+            "n_rt": 10,
+            "n_like": 5
+        }
+    },
+    "true_cluster_id2": {
+        "true_pseudo": {
+            "edges": 20,
+            "n_rt": 10,
+            "n_like": 5
+        },
+        "true_pseudo1": {
+            "edges": 100,
+            "n_rt": 10,
+            "n_like": 5
+        },
+        "true_pseudo2": {
+            "edges": 50,
+            "n_rt": 10,
+            "n_like": 5
+        }
+    }
+
+}

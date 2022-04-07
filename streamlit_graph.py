@@ -7,20 +7,25 @@ import streamlit as st
 import streamlit.components.v1 as components
 from gensim.models import Word2Vec
 from unidecode import unidecode
-'''
-streamlit server side 
-visualiser les communautés:
+# 
+# streamlit server side 
+# visualiser les communautés:
 
-Select keywords:
+# Select keywords:
 
-commu1  | commu2  | commu3  | ====> on click :  | LEADER |
------   | -----   | -----   |                   | ------ |
-voisin1 | voisin1 | voisin1 |                   | lead2  |
-voisin2 | voisin2 | voisin2 |                   | lead3  |
-voisin3 | voisin3 | voisin3 |                   | lead4  |
-'''
+# commu1  | commu2  | commu3  | 
+# -----   | -----   | -----   | 
+# voisin1 | voisin1 | voisin1 | 
+# voisin2 | voisin2 | voisin2 | 
+# voisin3 | voisin3 | voisin3 | 
+# 
 
-DATA='/data/mfrancois/social_computing/community_details_with_id.json'
+# PRESENTATION
+
+
+
+
+DATA='/data/mfrancois/social_computing/leaders_community.json'
 MODELS='/data/mfrancois/social_computing/models'
 TEST='/data/mfrancois/social_computing/toto.json'
 @st.cache(allow_output_mutation=True)
@@ -37,20 +42,7 @@ def load_models(path):
 def load_data(path):
     with open(path, 'r') as f:
         community_details = json.load(f)
-    print('trigger load data')
     return community_details
-
-@st.cache(allow_output_mutation=True)
-def get_community(community_details, cluster_id, nb_user=5):
-    # filter on id
-    print('start get community')
-    filtered_community = dict(filter(lambda x: x[1].get('cluster') == cluster_id and len(x[1].get('text'))>0, community_details.items()))
-    # sort on leader
-    edges  = [v.get('edges') for v in filtered_community.values()]
-    edges.sort(reverse=True)
-    filtered_community = dict(filter(lambda x: x[1].get('edges') >= edges[4], filtered_community.items()))
-    print(dict(sorted(filtered_community.items(), key=lambda x: x[1].get('edges'))))
-    return dict(sorted(filtered_community.items(), key=lambda x: x[1].get('edges')))
 
 @st.cache(allow_output_mutation=True)
 def light_prepro(mot):
@@ -79,7 +71,6 @@ print(f'n_voisins   :       {n_voisins}')
 community_details = load_data(path=DATA)
 # load w2v models
 models = load_models(path=MODELS)
-t = st.button('test')
 buttons = {}
 
 if keyword:
@@ -101,19 +92,22 @@ if keyword:
             j = list(models.keys())[compteur-l-1]
             title = f'community {j}'
             with co.expander(title, expanded=True):
-                if st.button('know more', key=str(j)): st.sidebar.text(get_community(community_details, cluster_id=j, nb_user=5))
+                # buttons[j] = st.button('know more', key=str(j))
                 st.table(sim_dict.get(j))
 
         compteur += 3            
 
+# for key, val in buttons.items():
+#     if val:
+#         print(f'community n°{key} details asked')
+#         st.sidebar.text(community_details.get(key))
+side = st.sidebar.container()
+side.select_slider()
 # leaders = {}
 # for k, v in buttons.items():
 #     if v:
 #         leaders[v] = get_community(community_details, cluster_id=k, nb_user=5)
 #         st.sidebar.text(leaders.get(v))
-
-if t: st.sidebar.text('coucou')
-
 
 print('fini')
 

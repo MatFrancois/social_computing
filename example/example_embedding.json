@@ -1,0 +1,12 @@
+{
+    "true_cluster_id": {
+        "true_mot": [1,2,3],
+        "true_mot2": [1,2,3], 
+        "true_mot3": [1,2,3] 
+    }, 
+    "true_cluster_id2": {
+        "true_mot": [1,2,3],
+        "true_mot2": [1,2,3], 
+        "true_mot3": [1,2,3] 
+    }
+}   

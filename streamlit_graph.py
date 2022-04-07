@@ -125,7 +125,9 @@ def leaders_to_df(community_details, cluster_id):
     # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
     df['username'] = df.index
-    return df[['username', 'retweets']].sort_values(by='retweets', ascending=False)
+    df = df[['username', 'n_rt']].sort_values(by='n_rt', ascending=False)
+    df.columns = ['username', 'retweets']
+    return df
  
  
 print('starting')

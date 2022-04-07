@@ -53,7 +53,7 @@ def load_models():
     for file in list(filter(re.compile(r'.*(\.model)$').match, files)):
         i = file.replace('word2vec_com', '').replace('.model', '') # get associated community
         print(f'working on {file}')
-        models[i] = Word2Vec.load(file)
+        models[i] = file #Word2Vec.load(file)
     print('trigger load model')
     return models
 
@@ -61,11 +61,11 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6]#,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] 
 
     my_bar = st.progress(0)
@@ -101,12 +101,12 @@ def light_prepro(mot):
 # @st.cache(allow_output_mutation=True)
 def get_similar_words(word, model, n):
     print('similarity')
-    return {m: pd.DataFrame(list(map(lambda x: light_prepro(x[0]), v.wv.similar_by_word(word, topn=n))), columns=['Neighbors']) for m, v in model.items() if word in v.wv.key_to_index}
+    return {m: pd.DataFrame(list(map(lambda x: light_prepro(x[0]), Word2Vec.load(v).wv.similar_by_word(word, topn=n))), columns=['Neighbors']) for m, v in model.items() if word in Word2Vec.load(v).wv.key_to_index}
 
 def get_similar_hashtag(word, model, n, hashtag_dict):
     res = {}
     for k, v in hashtag_dict:
-        sim = model.get(k).wv.distances(word, v)
+        sim = Word2Vec.load(model.get(k)).wv.distances(word, v)
         df = pd.DataFrame(v, columns=['Neighbors'])
         df['sim'] = sim
         res[k] = df.sort('sim', ascending=False)
@@ -167,6 +167,7 @@ download_models()
 
 # load communities
 community_details = load_data(path=DATA)
+community_details = dict(filter(lambda x: x[0] in [22,35,6], community_details.items()))
 # load w2v models
 models = load_models()
 print('model loaded')
@@ -200,7 +201,15 @@ if keyword:
         st.markdown("""---""")
         compteur += 5
 
+st.markdown('''
+## Qui sommes nous ?
 
+L'équipe GreenAI de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore les algorithmes d'apprentissage 
+automatique de pointe. Soucieux de notre impact sur la planète, nous développons des algorithmes à faible consommation d'énergie et 
+relevons les défis environnementaux. Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, 
+depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires industriels. Nous sommes 
+basés à Pau, en France, en face des Pyrénées.            
+''')
 print('fini')
 
 

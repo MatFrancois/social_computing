@@ -157,7 +157,6 @@ community_details = load_data(path=DATA)
 # load w2v models
 models = load_models()
 print('model loaded')
-print(models.get('27').wv.similar_by_word('climat'))
 buttons = {}
 
 if keyword:
@@ -176,17 +175,14 @@ if keyword:
         col = c.columns(n_col)
 
         for l, co in enumerate(col):
-            j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur-l-1] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
+            j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
             title = f'Community {j}'
 
             # display leaders
             co.subheader(title)
             with co.expander('leaders', expanded=True):
-                try:
-                    st.table(leaders_to_df(community_details, str(j)))
-                except:
-                    print(j)
-                    print(community_details.get(str(j)))
+                st.table(leaders_to_df(community_details, str(j)))
+            print(sim_dict.keys())
             co.table(sim_dict.get(str(j)))
 
         st.markdown("""---""")

@@ -106,7 +106,7 @@ def light_prepro(mot):
 def get_similar_words(word, model, n, j):
     print('similarity')
     m = Word2Vec.load(model.get(j))
-    return  pd.DataFrame(list(map(lambda x: light_prepro(x[0]), m.wv.similar_by_word(word, topn=n))), columns=['Neighbors']) if word in m.wv.key_to_index else None
+    return  pd.DataFrame(list(map(lambda x: light_prepro(x[0]), m.wv.similar_by_word(word, topn=n))), columns=['Termes']) if word in m.wv.key_to_index else None
 
 def get_similar_hashtag(word, model, n, hashtag_dict, j):
     res = {}
@@ -117,15 +117,15 @@ def get_similar_hashtag(word, model, n, hashtag_dict, j):
     if word not in m.wv.key_to_index: return None
     sim = m.wv.distances(word, v)
     print(sim[:20])
-    df = pd.DataFrame(v, columns=['Neighbors'])
+    df = pd.DataFrame(v, columns=['Termes'])
     df['sim'] = sim
-    return df.sort_values('sim', ascending=True).iloc[:n,:]
+    return df.sort_values('sim', ascending=True).iloc[:n,:]['Termes']
 
 def leaders_to_df(community_details, cluster_id):
     # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
     df['username'] = df.index
-    return df[['username', 'n_rt']].sort_values(by='n_rt', ascending=False)
+    return df[['username', 'retweets']].sort_values(by='retweets', ascending=False)
  
  
 print('starting')
@@ -134,24 +134,19 @@ _, col, _ = st.columns(3)
 col.title("App Title")
 col.markdown(
     '''
-Dans quelques jours débutera le premier tour de l'élection présidentielle 2022. Parallèlement, la situation environnementale continue 
-de se dégrader et la prise de conscience reste minime. 
+L'éléction présidentielle bat son plein! Parallèlement, la situation environnementale continue de se dégrader et la prise de conscience reste minime.
 
 ## A quoi sert ce site ?
 
-Ce site vous permet d'explorer les différentes communautés politiquement engagées sur twitter et leurs représentants. Vous pourrez alors 
-choisir un mot clé et afficher le N termes les plus proches contextuellement à celui ci par communauté. La liste de termes retournée pour 
-chaque communauté donne un aperçu des termes utilisés dans un même contexte par les membres de celle ci. 
+Ce site vous permet d'explorer les différentes communautés politiquement et/ou écologiquement engagées sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, il vous est proposé de choisir un mot clé afin d'afficher N termes contextuellement voisins pour chaque communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du mot clé pour chaque communauté.
 
-Des termes renvoyés très différents de celui de référence peuvent signifier une absence de celui ci dans le discours global.
+Note: vous pourrez être surpris par des voisins très différents de votre mot clé. Cela correspond souvent à une absence de celui-ci dans les discussions de cette communauté.
+
 
 ## Méthodologie
+### **Les données** : Environ 8 millions de tweets ont été collectés entre octobre 2021 et mars 2022. Ils correspondent à 227256 comptes issus une liste d'une centaine de politiciens et d'écologistes; à ceux-ci s'ajoutent l'extraction automatique de leur followers, les comptes qui les retweetent et mentionnent.
 
-Nous avons construit nos communautés au regard des liens formés entre les utilisateurs de twitter et des retweets effectués. L'établissement
-des N termes les plus proches contextuellement à un autre a été réalisé grâce à un modèle de langue. Ce modèle se base sur les co-occurences
-des mots et permet d'identifier les termes proches. 
-
-Pour chaque communauté un modèle a été entrainé et a permis de d'établir un dictionnaire de terme sous forme de vecteur de taille 300.
+### **Algorithme** : Une détection automatique des communautés a été effectuée en considérant qu'un retweet établit un lien de proximité entre deux comptes. Chaque communauté est décrit par ses "leaders", c'est à dire ses membres ayant accumulé le plus de retweets. Les distances entre le mot clé et les voisins se basent sur des statistiques de co-occurences entre les mots : deux mots accompagnés souvent des mêmes termes seront considérés voisins.
 
 ## Choisir un mot clé :
     '''
@@ -161,7 +156,7 @@ keyword = col.text_input(label='',value='climat')
 
 n_voisins = 10 #col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = 5 #col.slider('Number of leaders to display',2, 50, value=5)
-only_hashtag = st.checkbox('Compare to most famous hashtag of community')
+only_hashtag = st.checkbox('Cocher pour restreindre les termes à des Hashtags')
 # my_bar = st.progress(0)
 
 print(f'n_voisins   :       {n_voisins}')
@@ -209,11 +204,9 @@ if keyword:
 st.markdown('''
 ## Qui sommes nous ?
 
-L'équipe GreenAI de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore les algorithmes d'apprentissage 
-automatique de pointe. Soucieux de notre impact sur la planète, nous développons des algorithmes à faible consommation d'énergie et 
-relevons les défis environnementaux. Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, 
-depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires industriels. Nous sommes 
-basés à Pau, en France, en face des Pyrénées.            
+L'équipe GreenAI de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore les algorithmes d'apprentissage automatique de pointe. Soucieux de notre impact sur la planète, nous développons des algorithmes à faible consommation d'énergie et relevons les défis environnementaux. Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.         
+
+[Visitez notre page](https://greenai-uppa.github.io/) 
 ''')
 print('fini')
 

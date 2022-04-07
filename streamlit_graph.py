@@ -24,6 +24,7 @@ from unidecode import unidecode
 DATA='leaders_per_com_withwv.json'
 with open('kept_by_com.json', 'r') as f:
     HASHTAG = json.load(f)
+HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
 
 
 st.set_page_config(
@@ -63,11 +64,11 @@ def load_models():
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6]#,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [22,35,6]#[10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     ] 
 
     my_bar = st.progress(0)
@@ -109,13 +110,15 @@ def get_similar_words(word, model, n):
 def get_similar_hashtag(word, model, n, hashtag_dict):
     res = {}
     for k, v in hashtag_dict.items():
-        print(k)
-        print(v)
-        sim = Word2Vec.load(model.get(k)).wv.distances(word, v)
-        print(sim)
+        m = Word2Vec.load(model.get(k))
+        print(word)
+        if word not in m.wv.key_to_index: continue
+        sim = m.wv.distances(word, v)
+        print(sim[:20])
         df = pd.DataFrame(v, columns=['Neighbors'])
         df['sim'] = sim
-        res[k] = df.sort('sim', ascending=False)
+        res[k] = df.sort_values('sim', ascending=True).iloc[:n,:]
+        print(res.get(k).head())
     return res
 
 def leaders_to_df(community_details, cluster_id):
@@ -159,8 +162,8 @@ depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en 
 basés à Pau, en France, en face des Pyrénées.
     '''
 )
-keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
-# keyword = col.text_input(label='Choose keyword',value='climat')
+# keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
+keyword = col.text_input(label='Choose keyword',value='climat')
 
 n_voisins = col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = col.slider('Number of leaders to display',2, 50, value=5)
@@ -173,7 +176,7 @@ download_models()
 
 # load communities
 community_details = load_data(path=DATA)
-# community_details = dict(filter(lambda x: x[0] in [22,35,6], community_details.items()))
+community_details = dict(filter(lambda x: x[0] in ['22','35','6'], community_details.items()))
 # load w2v models
 models = load_models()
 print('model loaded')
@@ -183,7 +186,6 @@ if keyword:
 
     print(f'keyword     :       {keyword}')
     sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
-    print(sim_dict)
     st.title(keyword)
 
     compteur = 0
@@ -196,6 +198,7 @@ if keyword:
 
         for l, co in enumerate(col):
             j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
+            print(j)
             title = f'Community {j}'
 
             # display leaders

@@ -6,8 +6,10 @@ import pandas as pd
 import urllib.request
 import streamlit as st
 import streamlit.components.v1 as components
+import locale
 from gensim.models import Word2Vec
 from unidecode import unidecode
+locale.setlocale(locale.LC_ALL, '')
 # 
 # streamlit server side 
 # visualiser les communautés:
@@ -33,14 +35,20 @@ with open('communities_length.json', 'r') as f:
 
 
 st.set_page_config(
- page_title="",
+ page_title="Le climat de la présidentielle",
  page_icon="🧊",
  layout="wide",
 #  initial_sidebar_state="expanded",
  menu_items={
- 'Get Help': 'https://www.extremelycoolapp.com/help',
- 'Report a bug': "https://www.extremelycoolapp.com/bug",
- 'About': "# This is a header. This is an *extremely* cool app!"
+ 'Report a bug': "https://github.com/GreenAI-Uppa/social_computing/issues",
+ 'About': '''
+L'équipe GreenAIUppa de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore 
+les algorithmes d'apprentissage automatique de pointe. Soucieux de notre impact sur la planète, nous 
+développons des algorithmes à faible consommation d'énergie et relevons les défis environnementaux. 
+Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, 
+depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires 
+industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.
+ '''
  }
  )
 
@@ -117,7 +125,6 @@ def get_similar_words(word, model, n, j):
 
 def get_similar_hashtag(word, model, n, hashtag_dict, j):
     res = {}
-    # for k, v in hashtag_dict.items():
     v = hashtag_dict.get(j)
     m = Word2Vec.load(model.get(j))
     if word not in m.wv.key_to_index: return None
@@ -127,9 +134,7 @@ def get_similar_hashtag(word, model, n, hashtag_dict, j):
     return df.sort_values('sim', ascending=True).iloc[:n,:]['Termes']
 
 def leaders_to_df(community_details, cluster_id):
-    # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
-    # df['username'] = list(map(lambda x: f'@{x}', df.index.tolist()))
     df['leaders'] = list(map(lambda x: f'<a target="_blank" href="https://twitter.com/{x}">@{x}</a>', df.index.tolist()))
     
     df = df[['leaders', 'n_rt']].sort_values(by='n_rt', ascending=False)
@@ -140,7 +145,7 @@ def leaders_to_df(community_details, cluster_id):
 print('starting')
 
 _, col, _ = st.columns([1,3,1])
-col.title("App Title")
+col.title("Le climat de la présidentielle")
 col.markdown(
     '''
 L'éléction présidentielle bat son plein! Parallèlement, la situation environnementale continue de se 
@@ -193,7 +198,6 @@ keyword = col.text_input(label='',value='climat')
 n_voisins = 10 #col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = 5 #col.slider('Number of leaders to display',2, 50, value=5)
 only_hashtag = st.checkbox('Cocher pour restreindre les termes à des Hashtags')
-# my_bar = st.progress(0)
 
 print(f'n_voisins   :       {n_voisins}')
 
@@ -211,29 +215,25 @@ buttons = {}
 if keyword:
 
     print(f'keyword     :       {keyword}')
-    # sim_dict = get_similar_words(keyword, models, n_voisins) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG)
     st.title(f'Mot clé sélectionné : {keyword}')
 
     compteur = 0
     while compteur < len(community_details):
         
         n_col = min(len(community_details)-compteur, 5)
-
         col = st.columns(n_col)
 
         for l, co in enumerate(col):
             j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
-            title = f'Communité n°{j} (taille : {communities_length.get(str(j))})'
+            title = f'Communité n°{j} (taille : {communities_length.get(str(j)):n})'
 
             # display leaders
             # co.subheader(title)
+            df = get_similar_hashtag(keyword, models, n_voisins, HASHTAG, str(j)) if only_hashtag else get_similar_words(keyword, models, n_voisins, str(j))
             with co.expander(title, expanded=True):
                 st.markdown(
                     f'''{leaders_to_df(community_details, str(j)).iloc[:n_leaders,:].to_html(escape=False, index=False)}''', unsafe_allow_html=True)
-                # st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
-                # display_leaders(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
             print(f'j: {j}')
-            df = get_similar_hashtag(keyword, models, n_voisins, HASHTAG, str(j)) if only_hashtag else get_similar_words(keyword, models, n_voisins, str(j))
             co.table(df)
         st.markdown("""---""")
         compteur += 5

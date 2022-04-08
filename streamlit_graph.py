@@ -138,7 +138,7 @@ def leaders_to_df(community_details, cluster_id):
     df['leaders'] = list(map(lambda x: f'<a target="_blank" href="https://twitter.com/{x}">@{x}</a>', df.index.tolist()))
     
     df = df[['leaders', 'n_rt']].sort_values(by='n_rt', ascending=False)
-    df.columns = ['leaders', 'retweets totaux']
+    df.columns = ['leaders', 'retweeteurs']
     return df
  
  

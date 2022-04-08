@@ -28,6 +28,9 @@ with open('kept_by_com.json', 'r') as f:
     HASHTAG = json.load(f)
 if WORK_ON_ECH: HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
 
+with open('communities_length.json', 'r') as f:
+    communities_length = json.load(f)
+
 
 st.set_page_config(
  page_title="",
@@ -130,7 +133,7 @@ def leaders_to_df(community_details, cluster_id):
     df['leaders'] = list(map(lambda x: f'<a target="_blank" href="https://twitter.com/{x}">@{x}</a>', df.index.tolist()))
     
     df = df[['leaders', 'n_rt']].sort_values(by='n_rt', ascending=False)
-    df.columns = ['leaders', 'retweets']
+    df.columns = ['leaders', 'retweets totaux']
     return df
  
  
@@ -175,12 +178,11 @@ Contrairement à d'autres groupes de recherche, nos activités sont dédiées à
 depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires 
 industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.         
 
-[Visiter notre page](https://greenai-uppa.github.io/) 
-
 <center>
     <img src="https://miro.medium.com/max/700/0*X36NgC4u0VJBQwF6.png"  alt="centered image" style="text-align: center;">
 </center>
 
+[Visiter notre page](https://greenai-uppa.github.io/) 
 ''', unsafe_allow_html=True)
 
 col.markdown('''## Choisir un mot clé :''')
@@ -221,8 +223,7 @@ if keyword:
 
         for l, co in enumerate(col):
             j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
-            print(j)
-            title = f'Community {j}'
+            title = f'Communité n°{j} (taille : {communities_length.get(str(j))})'
 
             # display leaders
             # co.subheader(title)

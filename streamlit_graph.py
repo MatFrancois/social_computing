@@ -225,7 +225,7 @@ if keyword:
 
         for l, co in enumerate(col):
             j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
-            title = f'Communité n°{j} (taille : {communities_length.get(str(j)):n})'
+            title = f'Communauté n°{j} (taille : {communities_length.get(str(j)):n})'
 
             # display leaders
             # co.subheader(title)

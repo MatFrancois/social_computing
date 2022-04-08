@@ -145,7 +145,7 @@ def leaders_to_df(community_details, cluster_id):
 print('starting')
 
 _, col, _ = st.columns([1,3,1])
-col.title("Le climat de la présidentielle")
+col.title("Le Climat de la Présidentielle")
 col.markdown(
     '''
 L'éléction présidentielle bat son plein! Parallèlement, la situation environnementale continue de se 

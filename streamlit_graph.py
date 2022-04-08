@@ -21,10 +21,12 @@ from unidecode import unidecode
 # voisin3 | voisin3 | voisin3 | 
 # 
 
+WORK_ON_ECH = False # if true : work on only 3 models
+
 DATA='leaders_per_com_withwv.json'
 with open('kept_by_com.json', 'r') as f:
     HASHTAG = json.load(f)
-# HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
+if WORK_ON_ECH: HASHTAG = dict(filter(lambda x: x[0] in ['22','35','6'], HASHTAG.items()))
 
 
 st.set_page_config(
@@ -63,12 +65,14 @@ def load_models():
 # download models from git 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
 def download_models():
+    model_id = [22,35,6] if WORK_ON_ECH else [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+    model_id_light = [22,35,6] if WORK_ON_ECH else [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
     url = [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model" for i in model_id
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.wv.vectors.npy" for i in model_id_light
     ] + [
-        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
+        f"https://github.com/GreenAI-Uppa/social_computing/releases/download/models/word2vec_com{i}.model.syn1neg.npy" for i in model_id_light
     ] 
 
     my_bar = st.progress(0)
@@ -113,46 +117,74 @@ def get_similar_hashtag(word, model, n, hashtag_dict, j):
     # for k, v in hashtag_dict.items():
     v = hashtag_dict.get(j)
     m = Word2Vec.load(model.get(j))
-    print(word)
     if word not in m.wv.key_to_index: return None
     sim = m.wv.distances(word, v)
-    print(sim[:20])
-    df = pd.DataFrame(v, columns=['Termes'])
+    df = pd.DataFrame(list(map(lambda x: f'#{x}', v)), columns=['Termes'])
     df['sim'] = sim
     return df.sort_values('sim', ascending=True).iloc[:n,:]['Termes']
 
 def leaders_to_df(community_details, cluster_id):
     # print(community_details)
     df = pd.DataFrame.from_dict(community_details.get(cluster_id), orient='index')
-    df['username'] = df.index
-    df = df[['username', 'n_rt']].sort_values(by='n_rt', ascending=False)
-    df.columns = ['username', 'retweets']
+    # df['username'] = list(map(lambda x: f'@{x}', df.index.tolist()))
+    df['leaders'] = list(map(lambda x: f'<a target="_blank" href="https://twitter.com/{x}">@{x}</a>', df.index.tolist()))
+    
+    df = df[['leaders', 'n_rt']].sort_values(by='n_rt', ascending=False)
+    df.columns = ['leaders', 'retweets']
     return df
  
  
 print('starting')
 
-_, col, _ = st.columns(3)
+_, col, _ = st.columns([1,3,1])
 col.title("App Title")
 col.markdown(
     '''
-L'éléction présidentielle bat son plein! Parallèlement, la situation environnementale continue de se dégrader et la prise de conscience reste minime.
+L'éléction présidentielle bat son plein! Parallèlement, la situation environnementale continue de se 
+dégrader et la prise de conscience reste minime.
 
 ## A quoi sert ce site ?
 
-Ce site vous permet d'explorer les différentes communautés politiquement et/ou écologiquement engagées sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, il vous est proposé de choisir un mot clé afin d'afficher N termes contextuellement voisins pour chaque communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du mot clé pour chaque communauté.
+Ce site vous permet d'explorer les différentes communautés politiquement et/ou écologiquement engagées 
+sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, 
+il vous est proposé de choisir un mot clé afin d'afficher N termes contextuellement voisins pour chaque 
+communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du 
+mot clé pour chaque communauté.
 
-Note: vous pourrez être surpris par des voisins très différents de votre mot clé. Cela correspond souvent à une absence de celui-ci dans les discussions de cette communauté.
+Note: vous pourrez être surpris par des voisins très différents de votre mot clé. Cela correspond souvent 
+à une absence de celui-ci dans les discussions de cette communauté.
 
 
 ## Méthodologie
-**Les données** : Environ 8 millions de tweets ont été collectés entre octobre 2021 et mars 2022. Ils correspondent à 227256 comptes issus une liste d'une centaine de politiciens et d'écologistes; à ceux-ci s'ajoutent l'extraction automatique de leur followers, les comptes qui les retweetent et mentionnent.
+**Les données** : Environ 8 millions de tweets ont été collectés entre octobre 2021 et mars 2022. Ils 
+correspondent à 227 256 comptes issus d'une liste d'une centaine de politiciens et d'écologistes; à 
+ceux-ci s'ajoutent l'extraction automatique de leur followers, les comptes qui les retweetent et mentionnent.
 
-**Algorithme** : Une détection automatique des communautés a été effectuée en considérant qu'un retweet établit un lien de proximité entre deux comptes. Chaque communauté est décrit par ses "leaders", c'est à dire ses membres ayant accumulé le plus de retweets. Les distances entre le mot clé et les voisins se basent sur des statistiques de co-occurences entre les mots : deux mots accompagnés souvent des mêmes termes seront considérés voisins.
+**Algorithme** : Une détection automatique des communautés a été effectuée en considérant qu'un retweet 
+établit un lien de proximité entre deux comptes. Chaque communauté est décrit par ses "leaders", c'est 
+à dire ses membres ayant accumulé le plus de retweets. Les distances entre le mot clé et les voisins se 
+basent sur des statistiques de co-occurences entre les mots : deux mots accompagnés souvent des mêmes 
+termes seront considérés voisins.
+''')
+with col.expander('En savoir plus sur notre équipe'):
+    st.markdown('''
+L'équipe GreenAIUppa de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore 
+les algorithmes d'apprentissage automatique de pointe. Soucieux de notre impact sur la planète, nous 
+développons des algorithmes à faible consommation d'énergie et relevons les défis environnementaux. 
+Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, 
+depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires 
+industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.         
 
-## Choisir un mot clé :
-    '''
-)
+[Visiter notre page](https://greenai-uppa.github.io/) 
+
+<center>
+    <img src="https://miro.medium.com/max/700/0*X36NgC4u0VJBQwF6.png"  alt="centered image" style="text-align: center;">
+</center>
+
+''', unsafe_allow_html=True)
+
+col.markdown('''## Choisir un mot clé :''')
+
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
 keyword = col.text_input(label='',value='climat')
 
@@ -167,12 +199,13 @@ download_models()
 
 # load communities
 community_details = load_data(path=DATA)
-# community_details = dict(filter(lambda x: x[0] in ['22','35','6'], community_details.items()))
+if WORK_ON_ECH: community_details = dict(filter(lambda x: x[0] in ['22','35','6'], community_details.items()))
 # load w2v models
 models = load_models()
 print('model loaded')
 buttons = {}
 
+# display communities & words
 if keyword:
 
     print(f'keyword     :       {keyword}')
@@ -182,10 +215,9 @@ if keyword:
     compteur = 0
     while compteur < len(community_details):
         
-        c = st.container()
         n_col = min(len(community_details)-compteur, 5)
 
-        col = c.columns(n_col)
+        col = st.columns(n_col)
 
         for l, co in enumerate(col):
             j = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12][compteur+l] #list(community_details.keys())[compteur-l-1] # à remplacer par l'ordre d'apparition des leaders
@@ -193,23 +225,19 @@ if keyword:
             title = f'Community {j}'
 
             # display leaders
-            co.subheader(title)
-            with co.expander('leaders', expanded=True):
-                st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
+            # co.subheader(title)
+            with co.expander(title, expanded=True):
+                st.markdown(
+                    f'''{leaders_to_df(community_details, str(j)).iloc[:n_leaders,:].to_html(escape=False, index=False)}''', unsafe_allow_html=True)
+                # st.table(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
+                # display_leaders(leaders_to_df(community_details, str(j)).iloc[:n_leaders,:])
             print(f'j: {j}')
-            df = get_similar_words(keyword, models, n_voisins, str(j)) if not only_hashtag else get_similar_hashtag(keyword, models, n_voisins, HASHTAG, str(j))
+            df = get_similar_hashtag(keyword, models, n_voisins, HASHTAG, str(j)) if only_hashtag else get_similar_words(keyword, models, n_voisins, str(j))
             co.table(df)
-
         st.markdown("""---""")
         compteur += 5
 
-st.markdown('''
-## Qui sommes nous ?
 
-L'équipe GreenAI de l'Université de Pau et des Pays de l'Adour est un laboratoire engagé qui améliore les algorithmes d'apprentissage automatique de pointe. Soucieux de notre impact sur la planète, nous développons des algorithmes à faible consommation d'énergie et relevons les défis environnementaux. Contrairement à d'autres groupes de recherche, nos activités sont dédiées à l'ensemble du pipeline, depuis les bases mathématiques jusqu'au prototype de R&D et au déploiement en production avec des partenaires industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.         
-
-[Visitez notre page](https://greenai-uppa.github.io/) 
-''')
 print('fini')
 
 

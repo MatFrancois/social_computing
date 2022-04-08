@@ -188,6 +188,8 @@ industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.
 </center>
 
 [Visiter notre page](https://greenai-uppa.github.io/) 
+
+Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 ''', unsafe_allow_html=True)
 
 col.markdown('''## Choisir un mot clé :''')

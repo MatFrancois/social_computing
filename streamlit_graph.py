@@ -135,7 +135,8 @@ def get_data(com_to_display):
   models = {}
   for c in com_to_display:
       models[c]={}
-      models[c]['model'] = pickle.load(open('word2vec_'+str(c)+'.pk','rb'))
+      models[c]['model'] = 'word2vec_'+str(c)+'.pk' # pickle.load(open('word2vec_'+str(c)+'.pk','rb'))
+      #models[c]['model'] = pickle.load(open('word2vec_'+str(c)+'.pk','rb'))
   return com, community_details, hashtags, models
  
 @st.cache(allow_output_mutation=True)
@@ -160,13 +161,15 @@ def light_prepro(mot):
 def get_similar_words(word, model, n, j):
     print('similarity')
     #m = Word2Vec.load(model.get(j))
-    m = model[int(j)]['model']
+    #m = model[int(j)]['model']
+    m = pickle.load(open(models[int(j)]['model'],'rb'))
     return  pd.DataFrame(list(map(lambda x: light_prepro(x[0]), m.wv.similar_by_word(word, topn=n))), columns=['Termes']) if word in m.wv.key_to_index else None
 
 def get_similar_hashtag(word, model, n, hashtag_dict, j):
     res = {}
     #v = hashtag_dict.get(j)
-    m = model[int(j)]['model']
+    #m = model[int(j)]['model']
+    m = pickle.load(open(models[int(j)]['model'],'rb'))
     #m = Word2Vec.load(model.get(j))
     if word not in m.wv.key_to_index: return None
     v = [w for w in hashtag_dict if w in m.wv.key_to_index]
@@ -265,9 +268,10 @@ def add_similar_words_df(models, keywords, nneigh=30):
     for i, value in models.items():
         similarity_df = pd.DataFrame()
         print(f'---{i}---')
+        model = pickle.load(open(value['model'],'rb')) # = pickle.load(open('word2vec_'+str(c)+'.pk','rb'))
         for key in keywords:
             try:
-                similarity_df[key] = [light_prepro(mot) for mot, _ in value.get('model').wv.similar_by_word(key, topn=nneigh)]
+                similarity_df[key] = [light_prepro(mot) for mot, _ in model.wv.similar_by_word(key, topn=nneigh)]
             except KeyError:
                 similarity_df[key] = ['__nokey__' for _ in range(nneigh)]
         value['similarity_df'] = similarity_df
@@ -324,7 +328,7 @@ Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 
 # selecting a subset of the communities for clarity and to save ram
 com_to_display = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
-com_to_display = [87, 32, 18] #, 66, 45, 81, 32, 19, 15]
+com_to_display = [87, 32, 18, 66, 45, 81, 32, 19, 15]
 ### loading all the data
 
 download_models_pickle()

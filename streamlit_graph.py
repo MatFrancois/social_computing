@@ -289,7 +289,7 @@ dégrader et la prise de conscience reste minime.
 
 Ce site vous permet d'explorer les différentes communautés politiquement et/ou écologiquement engagées 
 sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, 
-il vous est proposé de choisir un mot clé afin d'afficher N termes contextuellement voisins pour chaque 
+il vous est proposé de choisir plusieurs mots clés afin d'observer ces champs sont voisins d'une communauté à l'autre. D'une part en représentant les communautés sur un graphique, et d'autre part, en affichant N termes contextuellement voisins pour chaque 
 communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du 
 mot clé pour chaque communauté.
 
@@ -328,7 +328,7 @@ Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 
 # selecting a subset of the communities for clarity and to save ram
 com_to_display = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
-com_to_display = [87, 32, 18, 66, 45, 81, 32, 19, 15, 88, 74, 73, 50, 22]
+com_to_display = [87, 32, 18, 66, 45, 81, 88, 74, 73, 50, 22]
 ### loading all the data
 
 download_models_pickle()
@@ -346,7 +346,7 @@ communities_length = dict([(str(c), len(com[c])) for c in models])
 
 ### building the scatter plot
 keywords = ['climat', 'environnement', 'nucléaire', 'éolien', 'recyclage', 'carbone', 'nature', 'pollution', 'durable', 'consommer', 'croissance', 'décroissance', 'bio', 'agir', 'biodiversité', 'déchets', 'planète', 'réchauffement', 'plastique', 'consommation', 'GES', 'méthane', "protoxyde d'azote", 'sécheresses', 'crues', 'inondations', 'déréglement', 'écologie', 'effet de serre', "couche d'ozone",  'tempête', 'cyclone', 'effet rebond','permafrost', 'injustice', 'justice climatique']
-col.markdown('''## Choisir plusieurs mot clés:''')
+col.markdown('''### Choisir plusieurs mot clés:''')
 
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
 keyword_input = col.text_input(label='',value='climat environnement nucléaire éolien GES')
@@ -391,13 +391,13 @@ if keyword_input:
         st.plotly_chart(fig) #, use_container_width=True)
     col2.markdown(
     '''
-    ### Représentation 2D des champs lexicaux  
-    Sur graphique ci-contre, chaque point correspond à une communuautés d'utilisateurs de twitter. Deux communautés seront d'autant plus proches que leur champs lexicaux seront semblables sur le thème définis par les mots clés que vous venez de tapper. Cette similarité est calculée à partir de la quantité de mots en commun et puis, une réduction de dimension (tsne) permet d'afficher les communautés sous forme de point à deux dimensions.
+    ### Représentation 2D des champs lexicaux
+    Sur graphique ci-contre, chaque point correspond à une communuautés d'utilisateurs de twitter. Deux communautés seront d'autant plus proches que leur champs lexicaux seront semblables sur le thème définis par les mots clés que vous venez de tapper. Cette similarité est calculée à partir de la quantité de mots en commun parmis les voisins. Une réduction de dimension (tsne) permet d'afficher les communautés sous forme de point à deux dimensions.
     '''
     )
 
     print(f'keyword     :       {keyword}')
-    st.title(f'Termes voisins pour le mot : {keyword}')
+    st.subheader(f'Termes voisins pour le mot : {keyword}')
 
     only_hashtag = st.checkbox('Cocher pour restreindre les termes à des Hashtags', value=True)
     compteur = 0

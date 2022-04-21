@@ -324,7 +324,7 @@ Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 
 # selecting a subset of the communities for clarity and to save ram
 com_to_display = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
-com_to_display = [87, 32, 18, 66, 45, 81, 32, 19, 15]
+com_to_display = [87, 32, 18] #, 66, 45, 81, 32, 19, 15]
 ### loading all the data
 
 download_models_pickle()

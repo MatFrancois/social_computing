@@ -3,3 +3,4 @@ streamlit
 gensim
 unidecode
 plotly
+sklearn

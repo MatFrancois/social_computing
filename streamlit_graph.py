@@ -328,7 +328,7 @@ Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 
 # selecting a subset of the communities for clarity and to save ram
 com_to_display = [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
-com_to_display = [87, 32, 18, 66, 45, 81, 88, 74, 73, 50, 22]
+com_to_display = [81, 32, 18, 66, 45, 87, 88, 74, 73, 50, 22]
 ### loading all the data
 
 download_models_pickle()
@@ -346,10 +346,11 @@ communities_length = dict([(str(c), len(com[c])) for c in models])
 
 ### building the scatter plot
 keywords = ['climat', 'environnement', 'nucléaire', 'éolien', 'recyclage', 'carbone', 'nature', 'pollution', 'durable', 'consommer', 'croissance', 'décroissance', 'bio', 'agir', 'biodiversité', 'déchets', 'planète', 'réchauffement', 'plastique', 'consommation', 'GES', 'méthane', "protoxyde d'azote", 'sécheresses', 'crues', 'inondations', 'déréglement', 'écologie', 'effet de serre', "couche d'ozone",  'tempête', 'cyclone', 'effet rebond','permafrost', 'injustice', 'justice climatique']
+keywords = ['GIEC']
 col.markdown('''### Choisir plusieurs mot clés:''')
 
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
-keyword_input = col.text_input(label='',value='climat environnement nucléaire éolien GES')
+keyword_input = col.text_input(label='',value='GIEC océan GES climat environnement nucléaire')
 
 n_voisins = 10 #col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = 5 #col.slider('Number of leaders to display',2, 50, value=5)
@@ -372,8 +373,8 @@ if keyword_input:
     texts_hover = get_com_hover_text(models, community_details)
     aj_matrix, distances = calc_aj(models=models)
     n_components = 2
-    p  = 2 #[2,5,30,50,100]:
-    tsne = TSNE(n_components, perplexity=p, learning_rate=max(len(aj_matrix)/12/4, 50), metric='precomputed', n_iter=5000)
+    p  = 1.8 #[2,5,30,50,100]:
+    tsne = TSNE(n_components, perplexity=p, learning_rate=max(len(aj_matrix)/12/4, 50), metric='precomputed', n_iter=50000)
     tsne_result = tsne.fit_transform(aj_matrix)
     sizes = [len(com[c]) for c in models.keys()]
     tsne_result_df = pd.DataFrame({'tsne_1': tsne_result[:,0], 'tsne_2': tsne_result[:,1], 'community': list(models.keys()), 'leaders':texts_hover, "members":sizes})

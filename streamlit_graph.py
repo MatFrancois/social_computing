@@ -291,7 +291,7 @@ Ce site vous permet d'explorer les différentes communautés politiquement et/ou
 sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, 
 il vous est proposé de choisir plusieurs mots clés afin d'observer ces champs sont voisins d'une communauté à l'autre. D'une part en représentant les communautés sur un graphique, et d'autre part, en affichant N termes contextuellement voisins pour chaque 
 communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du 
-mot clé pour chaque communauté.
+mot clé pour chaque communauté (voir une [démo vidéo](https://www.linkedin.com/company/green-ai-uppa/videos/) de 4 minutes).
 
 Note: vous pourrez être surpris par des voisins très différents de votre mot clé. Cela correspond souvent 
 à une absence de celui-ci dans les discussions de cette communauté.
@@ -347,7 +347,7 @@ communities_length = dict([(str(c), len(com[c])) for c in models])
 ### building the scatter plot
 keywords = ['climat', 'environnement', 'nucléaire', 'éolien', 'recyclage', 'carbone', 'nature', 'pollution', 'durable', 'consommer', 'croissance', 'décroissance', 'bio', 'agir', 'biodiversité', 'déchets', 'planète', 'réchauffement', 'plastique', 'consommation', 'GES', 'méthane', "protoxyde d'azote", 'sécheresses', 'crues', 'inondations', 'déréglement', 'écologie', 'effet de serre', "couche d'ozone",  'tempête', 'cyclone', 'effet rebond','permafrost', 'injustice', 'justice climatique']
 keywords = ['GIEC']
-col.markdown('''### Choisir plusieurs mot clés:''')
+col.markdown('''### Choisir plusieurs mot clés (ou voir [démo](https://www.linkedin.com/company/green-ai-uppa/videos/)):''')
 
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
 keyword_input = col.text_input(label='',value='GIEC océan GES climat environnement nucléaire')

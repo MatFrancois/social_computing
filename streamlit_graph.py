@@ -283,7 +283,7 @@ def add_similar_words_df(models, keywords, nneigh=30):
 
 # =============== Wordcloud =============== #
 
-list_images = os.listdir('wordcloud_hashtag_communities_v3')
+list_images = os.listdir('wordcloud_hashtag_communities_v3/')
 list_images_com = [int(list_images[i][10:12]) for i in range(len(list_images))]
 list_com = [87, 32, 18, 66, 45, 81, 88, 74, 73, 50, 22]
 

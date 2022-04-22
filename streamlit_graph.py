@@ -15,6 +15,11 @@ from unidecode import unidecode
 import plotly.express as px
 import pickle
 locale.setlocale(locale.LC_ALL, '')
+
+#---------------------------------- test wordcloud------------------------------------
+from PIL import Image
+# -----------------------------------------------------------------------------------
+
 # 
 # streamlit server side 
 # visualiser les communautés:
@@ -275,6 +280,14 @@ def add_similar_words_df(models, keywords, nneigh=30):
             except KeyError:
                 similarity_df[key] = ['__nokey__' for _ in range(nneigh)]
         value['similarity_df'] = similarity_df
+
+# =============== Wordcloud =============== #
+
+list_images = os.listdir('wordcloud_hashtag_communities_v3')
+list_images_com = [int(list_images[i][10:12]) for i in range(len(list_images))]
+list_com = [87, 32, 18, 66, 45, 81, 88, 74, 73, 50, 22]
+
+# ========================================= #        
         
 print('starting')
 
@@ -418,10 +431,27 @@ if keyword_input:
             with co.expander(title, expanded=True):
                 st.markdown(
                     f'''{leaders_to_df(community_details, str(j)).iloc[:n_leaders,:].to_html(escape=False, index=False)}''', unsafe_allow_html=True)
+                st.write('')    
+                if j in list_images_com:
+                    paths = 'wordcloud_hashtag_communities_v3'+f'/community_{j}.png'
+                    im = Image.open(paths)
+                    st.image(im, caption=f'Wordcloud de la communauté {j}') 
             print(f'j: {j}')
             co.table(df)
         st.markdown("""---""")
         compteur += 5
+
+    list_leaders = ['enedis','EnviroMag','INRAE_France','M_Laigneau','CompteurLinky','emma_ducros','TristanKamin','fmomboisse','MacLesggy','GeWoessner','J_Bardella','RNational_off', 
+        'MLP_officiel','SansLui_','BrunoBilde','ZemmourEric','stanislasrig','F_Desouche','GilbertCollard','christine_kelly','EmmanuelMacron','JeanCASTEX','Elysee','avecvous','RichardFerrand',
+        'audreygarric','BonPote','yjadot','franceinter','Reporterre','JLMelenchon','MathildePanot','melenchon_2022','ManonAubryFr','Ugobernalicis','idrissaberkane','PhilippeMurer','DIVIZIO1',
+        'france_soir','CStrateges','lemondefr','ArianeChemin','benvtk','libe','RaphaelleBacque','le_gorafi','bertrandhadet','AvocatavecunE','Ganette_',
+        'Decimaitre','ONU_fr','ONUinfo','UNESCO_fr','CCNUCC','ONUGeneve']
+    lead = st.selectbox("Sélectionnez l'un des 55 leaders présenté ci-dessous pour découvrir son nuage de mots associés", list_leaders)
+    # lead_images = os.listdir('/home/jpalafox/social_computing/social_computing/wordcloud_images_per_users')
+    lead_images = 'wordcloud_images_per_users'
+    lead_image = Image.open(lead_images + f'/{lead}.png')
+    st.image(lead_image, caption=f"Wordcloud de l'utilisateur {lead}")
+
 print('fini')
 
 

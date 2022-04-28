@@ -306,7 +306,7 @@ Ce site vous permet d'explorer les différentes communautés politiquement et/ou
 sur twitter et de comparer leurs champs lexicaux par rapport à des sujets de votre choix. Concrètement, 
 il vous est proposé de choisir plusieurs mots clés afin d'observer ces champs sont voisins d'une communauté à l'autre. D'une part en représentant les communautés sur un graphique, et d'autre part, en affichant N termes contextuellement voisins pour chaque 
 communauté. Autrement dit, ces listes de termes donnent un aperçu du lexique utilisé dans le contexte du 
-mot clé pour chaque communauté (voir une [démo vidéo](https://www.linkedin.com/company/green-ai-uppa/videos/) de 4 minutes).
+mot clé pour chaque communauté (voir une [démo vidéo](https://youtu.be/IedJytgIFE0) de 4 minutes).
 
 Note: vous pourrez être surpris par des voisins très différents de votre mot clé. Cela correspond souvent 
 à une absence de celui-ci dans les discussions de cette communauté.
@@ -359,7 +359,7 @@ if False:
 #(com, text_users, df, community_details, models, leaders, hashtags) = pickle.load(open('/home/paul/data/elyzee/comm_and_co3_subset_leadersFormat.pk','rb')) #comm_and_co3_subset.pk','rb'))
 communities_length = dict([(str(c), len(com[c])) for c in models])
 
-col.markdown('''### Choisir un mot clé (ou voir [démo](https://apps.streamlitusercontent.com/matfrancois/social_computing/main/streamlit_graph.py/+/#video-tutoriel-et-description))''') 
+col.markdown('''### Choisir un mot clé (ou voir [démo](https://youtu.be/IedJytgIFE0))''') 
 
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
 keyword = col.text_input(label='',value='GIEC')
@@ -421,9 +421,6 @@ if keyword:
     lead_images = 'wordcloud_images_per_users'
     lead_image = Image.open(lead_images + f'/{lead}.png')
     st.image(lead_image, caption=f"Wordcloud de l'utilisateur {lead}")
-st.markdown('''# Video tutoriel et description ''' )
-video1 = open("first_round.mp4", "rb") 
-st.video(video1)
 print('fini')
 
 

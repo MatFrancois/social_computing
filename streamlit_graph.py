@@ -181,7 +181,9 @@ def get_similar_hashtag(word, model, n, hashtag_dict, j):
     sim = m.wv.distances(word, v)
     df = pd.DataFrame(list(map(lambda x: f'#{x}', v)), columns=['Termes'])
     df['sim'] = sim
-    return df.sort_values('sim', ascending=True).iloc[:n,:]['Termes']
+    print('columns',df.columns)
+    df.columns = ['Termes voisins','sim']
+    return df.sort_values('sim', ascending=True).iloc[:n,:]['Termes voisins']
 
 def leaders_to_df(community_details, cluster_id):
     com = community_details[int(cluster_id)]
@@ -357,13 +359,11 @@ if False:
 #(com, text_users, df, community_details, models, leaders, hashtags) = pickle.load(open('/home/paul/data/elyzee/comm_and_co3_subset_leadersFormat.pk','rb')) #comm_and_co3_subset.pk','rb'))
 communities_length = dict([(str(c), len(com[c])) for c in models])
 
-### building the scatter plot
-keywords = ['climat', 'environnement', 'nucléaire', 'éolien', 'recyclage', 'carbone', 'nature', 'pollution', 'durable', 'consommer', 'croissance', 'décroissance', 'bio', 'agir', 'biodiversité', 'déchets', 'planète', 'réchauffement', 'plastique', 'consommation', 'GES', 'méthane', "protoxyde d'azote", 'sécheresses', 'crues', 'inondations', 'déréglement', 'écologie', 'effet de serre', "couche d'ozone",  'tempête', 'cyclone', 'effet rebond','permafrost', 'injustice', 'justice climatique']
-keywords = ['GIEC']
-col.markdown('''### Choisir plusieurs mot clés (ou voir [démo](https://www.linkedin.com/company/green-ai-uppa/videos/)):''')
+col.markdown('''### Choisir un mot clé (ou voir [démo](https://apps.streamlitusercontent.com/matfrancois/social_computing/main/streamlit_graph.py/+/#video-tutoriel-et-description))''') 
 
 # keyword = col.selectbox(label="allowed keyword", options=('nature', 'cop26', 'nucléaire', 'eolien', 'climat', 'musulman')) # prend comme value la première option
-keyword_input = col.text_input(label='',value='GIEC océan GES climat environnement nucléaire')
+keyword = col.text_input(label='',value='GIEC')
+
 
 n_voisins = 10 #col.slider('Number of neighbors to display',3, 30, value=10)
 n_leaders = 5 #col.slider('Number of leaders to display',2, 50, value=5)
@@ -379,39 +379,9 @@ if WORK_ON_ECH: community_details = dict(filter(lambda x: x[0] in ['22','35','6'
 print('model loaded')
 buttons = {}
 # display communities & words
-if keyword_input:
-    keywords = keyword_input.replace(',',' ').split(' ')
-    keyword = keywords[0]
-    add_similar_words_df(models=models, keywords=keywords, nneigh=30)
-    texts_hover = get_com_hover_text(models, community_details)
-    aj_matrix, distances = calc_aj(models=models)
-    n_components = 2
-    p  = 1.8 #[2,5,30,50,100]:
-    tsne = TSNE(n_components, perplexity=p, learning_rate=max(len(aj_matrix)/12/4, 50), metric='precomputed', n_iter=50000)
-    tsne_result = tsne.fit_transform(aj_matrix)
-    sizes = [len(com[c]) for c in models.keys()]
-    tsne_result_df = pd.DataFrame({'tsne_1': tsne_result[:,0], 'tsne_2': tsne_result[:,1], 'community': list(models.keys()), 'leaders':texts_hover, "members":sizes})
-    #fig = make_subplots(rows=1, cols=1) #, subplot_titles=([f'perplexity: {i}' for i in [2,5,30,50,100]]))
-    fig = px.scatter(tsne_result_df, x="tsne_1", y="tsne_2", text="community", hover_data={"leaders":True, "tsne_1":False, "tsne_2":False, "community":False}, size="members")
-    fig.update_traces(textposition="bottom right")
-    #legend
-    fig.update_layout(showlegend=False)
-    #x axis
-    fig.update_xaxes(visible=False)
-    #y axis
-    fig.update_yaxes(visible=False)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(fig) #, use_container_width=True)
-    col2.markdown(
-    '''
-    ### Représentation 2D des champs lexicaux
-    Sur graphique ci-contre, chaque point correspond à une communuautés d'utilisateurs de twitter. Deux communautés seront d'autant plus proches que leur champs lexicaux seront semblables sur le thème définis par les mots clés que vous venez de tapper. Cette similarité est calculée à partir de la quantité de mots en commun parmis les voisins. Une réduction de dimension (tsne) permet d'afficher les communautés sous forme de point à deux dimensions.
-    '''
-    )
-
+if keyword:
     print(f'keyword     :       {keyword}')
-    st.subheader(f'Termes voisins pour le mot : {keyword}')
+    st.subheader(f'Communautés (leaders et nuage de mots) + termes voisins du mot clé : {keyword}')
 
     only_hashtag = st.checkbox('Cocher pour restreindre les termes à des Hashtags', value=True)
     compteur = 0
@@ -451,7 +421,9 @@ if keyword_input:
     lead_images = 'wordcloud_images_per_users'
     lead_image = Image.open(lead_images + f'/{lead}.png')
     st.image(lead_image, caption=f"Wordcloud de l'utilisateur {lead}")
-
+st.markdown('''# Video tutoriel et description ''' )
+video1 = open("first_round.mp4", "rb") 
+st.video(video1)
 print('fini')
 
 

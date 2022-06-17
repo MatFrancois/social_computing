@@ -9,7 +9,7 @@ tips:
 '''
 
 rt=True
-ROOT='/data/datasets/elyzee_2022/10:01:2021-00:00:00_03:22:2022-00:00:00'
+ROOT='/data/datasets/elyzee_2022/'
 files = os.listdir(ROOT)
 for file in files:
     with open(f'{ROOT}/{file}', 'r') as f:

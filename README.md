@@ -44,3 +44,16 @@ industriels. Nous sommes basés à Pau, en France, en face des Pyrénées.
 Nous contacter : [Matthieu François](mailto:matthieu.francois@yahoo.fr)
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/matfrancois/social_computing/main/streamlit_graph.py)
+
+## Projet
+
+- `community_details.json` : Json contenant pour chaque individu le ou les textes extraits, token, etc...
+- `graphe.py` 
+  - Création des communautés selon le fichier `relations.txt` 
+  - Préprocessing & écriture des outputs
+  - Création des modèles de w2v par communauté
+  - Calcul des distances jaccard
+- `load_json.py` : Lecture de N fichiers (contenant chacun les informations d'un tweet) et création de `community_details.json` et `relations.txt`
+- `print_first.py` : Lecture de tweets 1 par 1 dans l'ordre d'apparition
+- `relations.txt` : Fichier csv à 2 colonnes contenant les relations entre individus selon les retweets / mentions
+- `streamlit_graph.py`: Script d'application streamlit dédiée

@@ -111,7 +111,8 @@ def download_models():
             print(e)
 
 # download models from git 
-@st.cache(allow_output_mutation=True, suppress_st_warning=True)
+# @st.cache(allow_output_mutation=True, suppress_st_warning=True)
+@st.experimental_memo
 def download_models_pickle():
     #model_id = [22,35,6] if WORK_ON_ECH else [22,35,6,2,34,14,13,16,9,5,24,10,31,59,64,0,3,8,11,15,26,29,32,39,40,42,54,70,55,19,46,49,7,39,51,23,25,1,4,66,18,47,12]
     # model_id_light = [22,35,6] if WORK_ON_ECH else [10, 11, 13, 14, 15, 16, 18, 22, 24, 29, 2, 31, 34, 35, 39, 3, 47, 49, 4, 54, 55, 59, 5, 64, 6, 70, 9]
